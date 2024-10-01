@@ -3,18 +3,18 @@ import { CreateBrandDto } from './dto/create-brand.dto';
 import { UpdateBrandDto } from './dto/update-brand.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Brand } from './entities/brand.entity';
+import { Category } from './entities/category.entity';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
 export class BrandsService {
 
-  constructor(@InjectRepository(Brand) private readonly brandRepository: Repository<Brand>){}
+  constructor(@InjectRepository(Category) private readonly brandRepository: Repository<Category>){}
 
   create(createBrandDto: CreateBrandDto) {
-    const brand = this.brandRepository.create(createBrandDto);
-    return this.brandRepository.save(brand);
+    const category = this.brandRepository.create(createBrandDto);
+    return this.brandRepository.save(category);
   }
 
   findAll(paginationDto:PaginationDto) {
@@ -31,9 +31,9 @@ export class BrandsService {
     }
     else{
       const queryBuilder = this.brandRepository.createQueryBuilder();
-      return queryBuilder.where('UPPER(name) =: brand or slug:=slug',
+      return queryBuilder.where('UPPER(name) =: category or slug:=slug',
                                 {
-                                  brand: term.toUpperCase(), slug:term.toLowerCase()
+                                  category: term.toUpperCase(), slug:term.toLowerCase()
                                 }).getOne()
     }
       
@@ -41,16 +41,16 @@ export class BrandsService {
   }
 
   async update(id: string, updateBrandDto: UpdateBrandDto) {
-    const brand = await this.brandRepository.preload({
+    const category = await this.brandRepository.preload({
       id:id,
       ...updateBrandDto
     });
 
-    return this.brandRepository.save(brand);
+    return this.brandRepository.save(category);
   }
 
   async remove(id: string) {
-    const brand = await this.findOne(id);
-    return this.brandRepository.remove(brand);
+    const category = await this.findOne(id);
+    return this.brandRepository.remove(category);
   }
 }

@@ -4,10 +4,10 @@ import {v4 as uuid} from 'uuid'
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Car } from './entities/car.entity';
+import { Car } from './entities/product.entity';
 import { Repository } from 'typeorm';
-import { Brand } from 'src/brands/entities/brand.entity';
-import { BrandsService } from 'src/brands/brands.service';
+import { Brand } from 'src/categories/entities/brand.entity';
+import { BrandsService } from 'src/categories/brands.service';
 
 
 

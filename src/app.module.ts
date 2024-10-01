@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CarsController } from './cars/cars.controller';
-import { CarsModule } from './cars/cars.module';
-import { BrandsModule } from './brands/brands.module';
+import { CarsController } from './products/cars.controller';
+import { CarsModule } from './products/cars.module';
+import { BrandsModule } from './categories/brands.module';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {ConfigModule} from '@nestjs/config'
 import { CommonModule } from './common/common.module';
