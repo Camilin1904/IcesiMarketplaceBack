@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBrandDto } from './dto/create-brand.dto';
-import { UpdateBrandDto } from './dto/update-brand.dto';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
@@ -8,18 +8,18 @@ import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
-export class BrandsService {
+export class CategoriesService {
 
-  constructor(@InjectRepository(Category) private readonly brandRepository: Repository<Category>){}
+  constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>){}
 
-  create(createBrandDto: CreateBrandDto) {
-    const category = this.brandRepository.create(createBrandDto);
-    return this.brandRepository.save(category);
+  create(createBrandDto: CreateCategoryDto) {
+    const category = this.categoryRepository.create(createBrandDto);
+    return this.categoryRepository.save(category);
   }
 
   findAll(paginationDto:PaginationDto) {
     const {limit=10, offset=0} = paginationDto;
-    return this.brandRepository.find({
+    return this.categoryRepository.find({
       take:limit,
       skip:offset,
     });
@@ -27,10 +27,10 @@ export class BrandsService {
 
   findOne(term: string) {
     if(isUUID(term)){
-      return this.brandRepository.findOneBy({id:term});
+      return this.categoryRepository.findOneBy({id:term});
     }
     else{
-      const queryBuilder = this.brandRepository.createQueryBuilder();
+      const queryBuilder = this.categoryRepository.createQueryBuilder();
       return queryBuilder.where('UPPER(name) =: category or slug:=slug',
                                 {
                                   category: term.toUpperCase(), slug:term.toLowerCase()
@@ -40,17 +40,17 @@ export class BrandsService {
 
   }
 
-  async update(id: string, updateBrandDto: UpdateBrandDto) {
-    const category = await this.brandRepository.preload({
+  async update(id: string, updateBrandDto: UpdateCategoryDto) {
+    const category = await this.categoryRepository.preload({
       id:id,
       ...updateBrandDto
     });
 
-    return this.brandRepository.save(category);
+    return this.categoryRepository.save(category);
   }
 
   async remove(id: string) {
     const category = await this.findOne(id);
-    return this.brandRepository.remove(category);
+    return this.categoryRepository.remove(category);
   }
 }

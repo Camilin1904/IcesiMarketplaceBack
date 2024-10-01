@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { Controller, Get, Post,Param, ParseIntPipe, Body, ValidationPipe, UsePipes, ParseUUIDPipe, Delete, Patch  } from '@nestjs/common';
-import { CarsService } from './cars.service';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
+import { ProductsService } from './products.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('cars')
-export class CarsController {
+export class ProductsController {
 
-    constructor(public readonly carsService:CarsService){}
+    constructor(public readonly carsService:ProductsService){}
 
     @Get()
     async findAll(){
@@ -16,7 +16,7 @@ export class CarsController {
 
     @Post()
     @UsePipes(ValidationPipe)
-    async crate(@Body() car:CreateCarDto){
+    async create(@Body() car:CreateProductDto){
         return this.carsService.create(car);
     }
 
@@ -31,7 +31,7 @@ export class CarsController {
     }
 
     @Patch(':id')
-    update(@Param('id', ParseUUIDPipe) id:string, @Body() body:UpdateCarDto){
+    update(@Param('id', ParseUUIDPipe) id:string, @Body() body:UpdateProductDto){
         return this.carsService.update(id,body);
     }
 

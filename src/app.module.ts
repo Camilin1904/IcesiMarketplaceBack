@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CarsController } from './products/cars.controller';
-import { CarsModule } from './products/cars.module';
-import { BrandsModule } from './categories/brands.module';
+import { ProductsModule } from './products/products.module';
+import { BrandsModule } from './categories/categories.module';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {ConfigModule} from '@nestjs/config'
 import { CommonModule } from './common/common.module';
@@ -12,7 +11,7 @@ import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [
-    CarsModule,
+    ProductsModule,
     BrandsModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
