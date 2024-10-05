@@ -9,13 +9,13 @@ services:
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    container_name: car_dealership
+    container_name: icesi_market
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin4_container
+    container_name: icesi_market_container
     restart: always
     ports:
       - "8888:80"

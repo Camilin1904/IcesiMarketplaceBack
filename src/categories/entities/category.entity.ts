@@ -1,26 +1,29 @@
-import { Category_Subscription } from "./category_subscription.entity";
-import { Product_Category } from "./product_category.entity";
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/auth/entities/user.entity";
+import { Product } from "src/products/entities/product.entity";
+import { BeforeInsert, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Category {
     @PrimaryGeneratedColumn('uuid')
     id:string;
-
+    // Nombre
     @Column('text', {unique:true})
     name:string;
-
+    // Descripción
     @Column('text', {unique:false})
     descripton:string;
-
+    // slug
     @Column('text', {unique:true})
     slug:string;    
     
-    @OneToMany(()=>Product_Category, (product_category)=>product_category.category)
-    products:Product_Category;
+    // Un producto tiene muchas categorías y una categoría tiene muchos productos
+    @ManyToMany(()=>Product, (product) => product.categories)
+    @JoinTable()
+    products:Product[];
 
-    @OneToMany(()=>Category_Subscription, (categories_subscription)=>categories_subscription.category)
-    subscribers:Category_Subscription;
+    @ManyToMany(()=>User, (user) => user.categories)
+    @JoinTable()
+    users: User[];
 
     @BeforeInsert()
     checkSlug():void{

@@ -25,13 +25,14 @@ export class ProductsService {
     async findAll(){
         return this.products.find();
     }
-
+    /*
     async create(car:CreateProductDto){
         const category:Category = await this.categoriesService.findOne(car.category);
         const newCar:Car = {id:uuid(),category:category, model:car.model,year:car.year};
         this.products.save(newCar);
         return newCar;
     }
+        */
 
     delete(id: string): Car{
         const car=this.delete(id);        

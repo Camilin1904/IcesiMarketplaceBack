@@ -1,7 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from "typeorm";
 import { Product } from "src/products/entities/product.entity";
-import { Product_Subscription } from "src/products/entities/product_subscription.entity";
-import { Category_Subscription } from "src/categories/entities/category_subscription.entity";
+import { Category } from "src/categories/entities/category.entity";
 
 
 @Entity('users')
@@ -27,16 +26,15 @@ export class User{
     @Column('text', {array:true, default:['user']})
     roles: string[];
 
-    @Column('boolean',{default:false})
+    @Column('boolean',{default:true})
     isActive: boolean;
 
-    @OneToMany(()=>Product, (product)=>product.user)
+    @OneToMany(()=>Product, (product)=>product.owner)
     products:Product
 
-    @OneToMany(()=>Product_Subscription, (product_subscription)=>product_subscription.user)
-    products_subscribed:Product_Subscription
+    @ManyToMany(()=>Product, (product) => product.bought)
+    bought:Product
 
-
-    @OneToMany(()=>Category_Subscription, (categories_subscription)=>categories_subscription.user)
-    categories_subscribed:Category_Subscription
+    @ManyToMany(()=>Category, (category) => category.users)
+    categories:Category
 }

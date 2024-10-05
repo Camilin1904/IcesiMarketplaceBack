@@ -14,11 +14,13 @@ export class ProductsController {
         return this.carsService.findAll();
     }
 
+    /*
     @Post()
     @UsePipes(ValidationPipe)
     async create(@Body() car:CreateProductDto){
         return this.carsService.create(car);
     }
+        */
 
     @Get(':id')
     async findById(@Param('id', ParseUUIDPipe)id :string){

@@ -1,6 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, OneToMany } from "typeorm"
-import { Product_Category } from "src/categories/entities/product_category.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm"
 import { User } from "src/auth/entities/user.entity";
+import { Category } from "src/categories/entities/category.entity";
 
 @Entity()
 export class Product{
@@ -19,14 +19,20 @@ export class Product{
     @Column('text')
     description: string;
 
-    @OneToMany(()=>Product_Category, (product_category)=>product_category.product)
-    categories:Product_Category;
+    // Un producto tiene muchas categorías y una categoría tiene muchos productos
+    @ManyToMany(()=>Category, (category) => category.products)
+    categories:Category[];
 
-    @ManyToOne(()=>User,(user)=>user.products)
-    user: User;
+    // Un usario vende muchos productos
+    @ManyToOne(()=>User, (user) => user.products)
+    owner: User
 
-    @OneToMany(()=>Product_Category, (product_category)=>product_category.product)
-    subscribers:Product_Category;
+    // Un producto puede haber sido comprado por muchos usuarios y un usuario puede haber comprado muchos productos
+    @ManyToMany(() => User, (user) => user.bought)
+    @JoinTable()
+    bought: User[]
 
+    //@OneToMany(()=>Product_Category, (product_category)=>product_category.product)
+    //subscribers:Product_Category;
 
 }
