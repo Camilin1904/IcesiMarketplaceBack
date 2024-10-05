@@ -21,6 +21,7 @@ export class Category {
     @JoinTable()
     products:Product[];
 
+    // Un usuario puede suscribirse a muchas categorías y una categoría puede tener suscritos muchos usuarios
     @ManyToMany(()=>User, (user) => user.categories)
     @JoinTable()
     users: User[];

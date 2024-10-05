@@ -4,13 +4,13 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
-@Controller('brands')
+@Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() createBrandDto: CreateCategoryDto) {
-    return this.categoriesService.create(createBrandDto);
+  create(@Body() createCategorydDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategorydDto);
   }
 
   @Get()
@@ -24,8 +24,8 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  update(@Param('id',ParseUUIDPipe) id: string, @Body() updateBrandDto: UpdateCategoryDto) {
-    return this.categoriesService.update(id, updateBrandDto);
+  update(@Param('id',ParseUUIDPipe) id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')

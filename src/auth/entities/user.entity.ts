@@ -17,10 +17,10 @@ export class User{
     @Column('text')
     name:string;
 
-    @Column('text')
+    @Column('text', {nullable:true})
     phone:string;
 
-    @Column('text')
+    @Column('text', {nullable:true})
     location:string;
 
     @Column('text', {array:true, default:['user']})
