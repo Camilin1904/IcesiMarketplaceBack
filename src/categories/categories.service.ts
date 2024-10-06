@@ -38,7 +38,7 @@ export class CategoriesService {
     else{
       const queryBuilder = this.categoryRepository.createQueryBuilder();
       // Contruimos la consulta
-      category = await queryBuilder.where('UPPER(name) =: category or slug =: slug',
+      category = await queryBuilder.where('UPPER(name) = :category or slug =  :slug',
                                 {
                                   // Damos valores a las variables category y slug
                                   category: term.toUpperCase(), slug:term.toLowerCase()

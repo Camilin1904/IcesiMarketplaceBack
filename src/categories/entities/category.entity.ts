@@ -11,7 +11,7 @@ export class Category {
     name:string;
     // Descripción
     @Column('text', {unique:false})
-    descripton:string;
+    description:string;
     // slug
     @Column('text', {unique:true})
     slug:string;    
