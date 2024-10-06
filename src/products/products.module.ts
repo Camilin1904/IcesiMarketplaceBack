@@ -5,9 +5,9 @@ import { ProductsService } from './products.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Category } from '../categories/entities/category.entity';
 import { Product } from './entities/product.entity';
-import { CategoriesService } from '../../src/categories/categories.service';
-import { AuthService } from '../../src/auth/auth.service';
-import { User } from '../../src/auth/entities/user.entity';
+import { CategoriesService } from '../categories/categories.service';
+import { AuthService } from '../auth/auth.service';
+import { User } from '../auth/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 

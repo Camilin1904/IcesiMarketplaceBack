@@ -1,14 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { isUUID } from 'class-validator';
-import { PaginationDto } from '../../src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
-import { User } from 's../../src/auth/entities/user.entity';
-import { AuthService } from '../../src/auth/auth.service';
+import { User } from '../auth/entities/user.entity';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class CategoriesService {
@@ -16,9 +16,14 @@ export class CategoriesService {
   constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>, private readonly authService:AuthService){}
 
   // Crear una categoría
-  create(createCategoryDto: CreateCategoryDto) {
-    const category = this.categoryRepository.create(createCategoryDto);
-    return this.categoryRepository.save(category);
+  async create(createCategoryDto: CreateCategoryDto) {
+    try {
+      const category = this.categoryRepository.create(createCategoryDto);
+      await this.categoryRepository.save(category)
+      return category;
+    } catch (e) {
+      this.handleDBErrors(e)
+    }
   }
 
   // Recuperar todas las categorías por paginación
@@ -39,9 +44,8 @@ export class CategoriesService {
     }
     // Por slug
     else{
-      const queryBuilder = this.categoryRepository.createQueryBuilder();
       // Contruimos la consulta
-      category = await queryBuilder.where('UPPER(name) = :category or slug =  :slug',
+      category = await this.categoryRepository.createQueryBuilder().where('UPPER(name) = :category or slug =  :slug',
                                 {
                                   // Damos valores a las variables category y slug
                                   category: term.toUpperCase(), slug:term.toLowerCase()
@@ -86,5 +90,13 @@ export class CategoriesService {
     await this.categoryRepository.save(product);
 
     return product;
-}
+  }
+
+  private handleDBErrors(error: any){
+    if(error.code === '23505'){
+        throw new BadRequestException('Category already exists')
+    }
+
+    throw new InternalServerErrorException('Error creating category')
+  }
 }

@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../../src/auth/auth.service';
 import { User } from '../../src/auth/entities/user.entity';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../../src/auth/dtos/create-user.dto';
-import { BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { validRoles } from '../../src/auth/interfaces/valid-roles';
 import { LoginUserDto } from '../../src/auth/dtos/login-user.dto';
@@ -79,9 +78,9 @@ describe('AuthService', () => {
         });
 
         it('should throw a InternalServerErrorException if the db returns an error', async () => {
-          mockUserRepository.find.mockImplementation(() => {
+          mockUserRepository.save.mockImplementation(() => {
             throw new Error();
-          });; // Simulando que ya existe un usuario
+          });
     
           await expect(service.createUser(createUserDto)).rejects.toThrow(InternalServerErrorException);
           await expect(service.createUser(createUserDto)).rejects.toThrow('Error creating user');
@@ -258,9 +257,9 @@ describe('AuthService', () => {
     describe('delete', () => {
         it('should deactivate a user', async () => {
             const id = '1';
-            const user = { id, isActive: true };
+            const user = { id, isActive: false };
     
-            mockUserRepository.preload.mockResolvedValue(user);
+            mockUserRepository.save.mockResolvedValue(user);
     
             const result = await service.delete(id);
     

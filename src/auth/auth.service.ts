@@ -117,11 +117,13 @@ export class AuthService {
         });
     }
 
-    delete(id:string) {
-        return this.userRepository.preload({
+    async delete(id:string) {
+        const user = await this.userRepository.preload({
             id:id,
             isActive: false
-          });
+        });
+
+        return this.userRepository.save(user)
     }
 
     private handleDBErrors(error: any){

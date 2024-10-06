@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { Product } from '../products/entities/product.entity';
 import { JwtService } from '@nestjs/jwt';
-import { AuthService } from '../../src/auth/auth.service';
-import { User } from '../../src/auth/entities/user.entity';
+import { AuthService } from '../auth/auth.service';
+import { User } from '../auth/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 
 @Module({

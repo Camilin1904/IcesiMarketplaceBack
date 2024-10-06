@@ -4,8 +4,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
-import { Auth } from '../../src/auth/decorators/auth.decorator';
-import { PassportModule } from '@nestjs/passport';
+import { Auth } from '../auth/decorators/auth.decorator';
 
 @Controller('categories')
 export class CategoriesController {

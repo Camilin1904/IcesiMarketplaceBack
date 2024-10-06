@@ -73,6 +73,7 @@
     "typescript": "^5.1.3"
   },
   "jest": {
+    "globalTeardown": "./test/globalTeardown.ts",
     "moduleFileExtensions": [
       "js",
       "json",
