@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsInt, IsNumber, IsOptional, IsString, isString, IsUUID, Max, Min } from "class-validator";
+import { ArrayMinSize, IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, isString, IsUUID, Max, Min } from "class-validator";
 
 export class UpdateProductDto{
 
@@ -19,5 +19,10 @@ export class UpdateProductDto{
     @IsString({each:true})
     @ArrayMinSize(1)
     @IsOptional()
-    readonly categories: string[]
+    readonly categories: string[];
+    @IsBoolean()
+    @IsOptional()
+    readonly inStock: boolean;
+
+
 }

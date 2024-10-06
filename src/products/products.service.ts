@@ -5,12 +5,15 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 import { AuthService } from '../../src/auth/auth.service';
 import { User } from '../../src/auth/entities/user.entity';
 import { SubscribeProductDto } from './dto/subscribe-product.dto';
 import { Category } from '../categories/entities/category.entity';
 import { CategoriesService } from '../categories/categories.service';
+import { use } from 'passport';
+import { Vonage } from '@vonage/server-sdk';
+
 
 
 
@@ -34,6 +37,7 @@ export class ProductsService {
         var categories: Category[] = [];
         for (const cat of categoriesId){
             categories.push(await this.categoriesService.findOne(cat))
+            this.categoriesService.notify(cat, `hay nuevos productos que te pueden interesar`)
         }
         /*Promise.all(categoriesId.map(this.categoriesService.findOne))
             .then(
@@ -81,6 +85,7 @@ export class ProductsService {
 
     async update(id:string, product: UpdateProductDto){
         const productUpdate = await this.findById(id);
+        if(product.inStock) this.notify(id, `${productUpdate.name} tiene nuevas unidades ;)`);
         Object.assign(productUpdate, product);
         this.products.save(productUpdate);
         return productUpdate;
@@ -108,6 +113,59 @@ export class ProductsService {
         await this.products.save(product);
 
         return product;
+    }
+
+    async notify(id:string, message:string){
+        const product: Product = await this.findById(id);
+
+        const users:User[] = await this.products
+                            .createQueryBuilder()
+                            .relation(Product, 'subscribers')
+                            .of(id)
+                            .loadMany();
+        
+        try{
+            for (const user of users){
+                console.log(user)
+                if ((Date.now()-user.lastNotified.getTime()) >= 10800000){
+                    console.log('Notify user ' + user.name);
+                    console.log(message);
+                    const { Vonage } = require('@vonage/server-sdk')
+
+                    const vonage = new Vonage({
+                        apiKey: process.env.API_KEY,
+                        apiSecret: process.env.API_SECRET
+                    });
+                    const from = "Vonage APIs"
+                    const to = "573052631250"
+                    async function sendSMS() {
+                        await vonage.sms.send({to, from, message})
+                            .then(resp => { console.log('Message sent successfully'); console.log(resp); })
+                            .catch(err => { console.log('There was an error sending the messages.'); console.error(err); });
+                    }
+                    
+                    sendSMS();
+/*
+                    const twilio = require('twilio');
+
+                    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+                    const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+                    const client = twilio(accountSid, authToken);
+
+                    client.messages.create({
+                        body: message,
+                        messagingServiceSid: 'MGfd189b270863568e7f3666a8ea1eab1b',
+                        to: '+573052631250'
+                    }).then(message => console.log(message.sid));
+*/
+
+                }
+            }
+        }
+        catch{}
+
+        
     }
     
 

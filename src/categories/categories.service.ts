@@ -86,5 +86,29 @@ export class CategoriesService {
     await this.categoryRepository.save(product);
 
     return product;
-}
+  }
+
+
+  async notify(id:string, message:string){
+    const product: Category = await this.findOne(id);
+
+    const users:User[] = await this.categoryRepository
+                        .createQueryBuilder()
+                        .relation(Category  , 'subscribers')
+                        .of(id)
+                        .loadMany();
+    
+    try{
+        for (const user of users){
+            console.log(user)
+            if ((Date.now()-user.lastNotified.getTime()) >= 10800000){
+                console.log('Notify user ' + user.name);
+                console.log(message);
+            }
+        }
+    }
+    catch{}
+
+    
+  }
 }
