@@ -8,42 +8,93 @@ import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
+import { AuthService } from 'src/auth/auth.service';
+import { User } from 'src/auth/entities/user.entity';
 
 
 
 @Injectable()
 export class ProductsService {
-    constructor (@InjectRepository(Product) private readonly products:Repository<Car>, private readonly categoriesService:CategoriesService){}
+    constructor (@InjectRepository(Product) private readonly products:Repository<Product>, private readonly categoriesService:CategoriesService, private readonly authService:AuthService){}
 
     async findById(id: string){
-        const car= await this.products.findOneBy({id:id});
-        if(car==undefined){
+        const product= await this.products.findOneBy({id:id});
+        if(product==undefined){
             throw new NotFoundException();
         }
-        return car;
+        return product;
     }
     async findAll(){
         return this.products.find();
     }
-    /*
-    async create(car:CreateProductDto){
-        const category:Category = await this.categoriesService.findOne(car.category);
-        const newCar:Car = {id:uuid(),category:category, model:car.model,year:car.year};
-        this.products.save(newCar);
-        return newCar;
+    
+    async create(product:CreateProductDto, uId:string){
+        const categoriesId:string[] = product.categories;
+        var categories: Category[] = [];
+        for (const cat of categoriesId){
+            categories.push(await this.categoriesService.findOne(cat))
+        }
+        /*Promise.all(categoriesId.map(this.categoriesService.findOne))
+            .then(
+                cats =>{
+                    categories = cats;
+                }
+            )*/
+        const owner: User = await this.authService.myInfo(uId);
+        const newProduct:Product = {
+            id: uuid(), 
+            categories: categories, 
+            cost: product.cost, 
+            description: product.description, 
+            name: product.name,
+            inStock: true,
+            owner: owner,
+            bought: []
+        };
+        this.products.save(newProduct);
+        return newProduct;
     }
-        */
+        
 
-    delete(id: string): Car{
-        const car=this.delete(id);        
-        return car;
+    async delete(id: string) {
+        // First, find the product with its relations
+        const product = await this.products.findOne({
+          where: { id },
+          relations: ['categories', 'bought'], // Include all relations that need to be cleared
+        });
+      
+        if (!product) {
+          throw new Error(`Product with ID ${id} not found`);
+        }
+      
+        // Clear the relations before deleting the product
+        product.categories = [];
+        product.bought = [];
+        await this.products.save(product);
+      
+        // Now delete the product
+        const result = await this.products.delete(id);
+        return result;
+      }
+      
+
+    async update(id:string, product: UpdateProductDto){
+        const productUpdate = await this.findById(id);
+        Object.assign(productUpdate, product);
+        this.products.save(productUpdate);
+        return productUpdate;
     }
 
-    async update(id:string, car: UpdateProductDto){
-        const carUpdate = this.findById(id);
-        Object.assign(carUpdate, car);
-        return carUpdate;
+    async findByCategory(categoryId:string){
+        const products = await this.products
+        .createQueryBuilder('product')
+        .innerJoinAndSelect('product.categories', 'category') // Join with the categories relation
+        .where('category.id = :categoryId', { categoryId }) // Filter by category id
+        .getMany();
+        return products;
+
     }
+    
 
     
 }

@@ -11,24 +11,24 @@ export class Product{
     name: string;
 
     @Column('float')
-    cost: number;
+        cost: number;
 
-    @Column('boolean')
+    @Column('boolean',{default:true})
     inStock: boolean;
 
     @Column('text')
     description: string;
 
     // Un producto tiene muchas categorías y una categoría tiene muchos productos
-    @ManyToMany(()=>Category, (category) => category.products)
+    @ManyToMany(()=>Category, (category) => category.products, {cascade:true})
     categories:Category[];
 
     // Un usario vende muchos productos
-    @ManyToOne(()=>User, (user) => user.products)
+    @ManyToOne(()=>User, (user) => user.products,{cascade:true})
     owner: User
 
     // Un producto puede haber sido comprado por muchos usuarios y un usuario puede haber comprado muchos productos
-    @ManyToMany(() => User, (user) => user.bought)
+    @ManyToMany(() => User, (user) => user.bought, {nullable:true, cascade:true})
     @JoinTable()
     bought: User[]
 

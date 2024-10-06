@@ -1,40 +1,47 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post,Param, ParseIntPipe, Body, ValidationPipe, UsePipes, ParseUUIDPipe, Delete, Patch  } from '@nestjs/common';
+import { Controller, Get, Post,Param, ParseIntPipe, Body, ValidationPipe, UsePipes, ParseUUIDPipe, Delete, Patch, Request, UseGuards  } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { AuthGuard } from '@nestjs/passport';
 
-@Controller('cars')
+@Controller('products')
 export class ProductsController {
 
-    constructor(public readonly carsService:ProductsService){}
+    constructor(public readonly productsService:ProductsService){}
 
     @Get()
     async findAll(){
-        return this.carsService.findAll();
+        return this.productsService.findAll();  
     }
 
-    /*
+    
     @Post()
     @UsePipes(ValidationPipe)
-    async create(@Body() car:CreateProductDto){
-        return this.carsService.create(car);
+    @UseGuards(AuthGuard('jwt'))        
+    async create(@Request() req, @Body() car:CreateProductDto){
+        const uId:string = req.user.id;
+        return this.productsService.create(car, uId);
     }
-        */
+
+    @Get('category/:id')
+    findByCategory(@Param('id', ParseUUIDPipe) categoryId:string){
+        return this.productsService.findByCategory(categoryId);
+    }
 
     @Get(':id')
     async findById(@Param('id', ParseUUIDPipe)id :string){
-        return this.carsService.findById(id);
+        return this.productsService.findById(id);
     }
 
     @Delete(':id')
     async delete(@Param('id', ParseUUIDPipe)id :string){
-        return this.carsService.delete(id);
+        return this.productsService.delete(id);
     }
 
     @Patch(':id')
     update(@Param('id', ParseUUIDPipe) id:string, @Body() body:UpdateProductDto){
-        return this.carsService.update(id,body);
+        return this.productsService.update(id,body);
     }
 
 }
