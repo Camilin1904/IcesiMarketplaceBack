@@ -37,4 +37,7 @@ export class User{
 
     @ManyToMany(()=>Category, (category) => category.subscribers)
     category_subscriptions:Category[]
+
+    @Column('timestamp',{default: new Date(0)})
+    lastNotified: Date;
 }
