@@ -8,6 +8,8 @@ import { LoginUserDto } from './dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { SellerDto } from './dtos/seller-dto';
 import { validRoles } from './interfaces/valid-roles';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,10 +19,19 @@ export class AuthService {
         try {
             const {password, ...userData} = createUserDto;
 
-            const user = this.userRepository.create({
-                password: bcrypt.hashSync(password, 10),
-                ...userData
-            })
+            let user: User
+            if((await this.userRepository.find()).length == 0){
+                user = this.userRepository.create({
+                    password: bcrypt.hashSync(password, 10),
+                    roles: [validRoles.user, validRoles.admin],
+                    ...userData
+                })
+            }else{
+                user = this.userRepository.create({
+                    password: bcrypt.hashSync(password, 10),
+                    ...userData
+                })
+            }
 
             await this.userRepository.save(user)
 
@@ -44,18 +55,23 @@ export class AuthService {
         };
     }
 
-    private handleDBErrors(error: any){
-        if(error.code === '23505'){
-            throw new BadRequestException('User already exists')
+    async becomeSeller(id: string, sellerDto: SellerDto){
+        let user = await this.userRepository.findOne({
+            where: {id}
+        });
+        
+        if(user.roles.includes(validRoles.admin)){
+            user = await this.userRepository.preload({
+                id: id, roles: [validRoles.user, validRoles.admin, validRoles.seller], phone: sellerDto.phone,
+                location: sellerDto.location
+            })
+        }else{
+            user = await this.userRepository.preload({
+                id: id, roles: [validRoles.user, validRoles.seller], phone: sellerDto.phone,
+                location: sellerDto.location
+            })
         }
 
-        throw new InternalServerErrorException('Error creating user')
-    }
-
-    async becomeSeller(id: string, sellerDto: SellerDto){
-        const user = await this.userRepository.preload({
-            id: id, roles: [validRoles.user, validRoles.seller], ...sellerDto
-        })
         return this.userRepository.save(user);
     }
 
@@ -65,6 +81,49 @@ export class AuthService {
         });
 
         return user
+    }
+
+    async update(id: string, updateBrandDto: UpdateUserDto) {
+        
+        const user = await this.userRepository.preload({
+          id:id,
+          ...updateBrandDto
+        });
+    
+        return this.userRepository.save(user);
+    }
+
+    
+    findAll(paginationDto:PaginationDto) {
+        const {limit=10, offset=0} = paginationDto;
+        return this.userRepository.find({
+            take:limit,
+            skip:offset,
+        });
+    }
+
+    findByName(name:string, paginationDto:PaginationDto) {
+        const {limit=10, offset=0} = paginationDto;
+        return this.userRepository.find({
+            where: {name},
+            take:limit,
+            skip:offset,
+        });
+    }
+
+    delete(id:string) {
+        return this.userRepository.preload({
+            id:id,
+            isActive: false
+          });
+    }
+
+    private handleDBErrors(error: any){
+        if(error.code === '23505'){
+            throw new BadRequestException('User already exists')
+        }
+
+        throw new InternalServerErrorException('Error creating user')
     }
 }
 /*function InjectableRepository(user: typeof User): (target: typeof AuthService, propertyKey: undefined, parameterIndex: 0) => void {

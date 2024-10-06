@@ -30,11 +30,11 @@ export class User{
     isActive: boolean;
 
     @OneToMany(()=>Product, (product)=>product.owner)
-    products:Product
+    products:Product[]
 
     @ManyToMany(()=>Product, (product) => product.bought)
-    bought:Product
+    bought:Product[]
 
     @ManyToMany(()=>Category, (category) => category.users)
-    categories:Category
+    categories:Category[]
 }

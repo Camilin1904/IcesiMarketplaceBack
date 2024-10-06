@@ -1,9 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Put, Delete, Query, Param } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dtos/login-user.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { SellerDto } from './dtos/seller-dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { validRoles } from './interfaces/valid-roles';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -20,17 +23,42 @@ export class AuthController {
     }
 
     @Post('seller')
-    @UseGuards(AuthGuard('jwt')) // Protege la ruta con el guard de JWT
+    @Auth(validRoles.admin)
     becomeSeller(@Request() req, @Body() sellerDto: SellerDto) {
-        const userId = req.user.id; // Obtén el user_id del JWT
+        const userId = req.user.userId;
         return this.authService.becomeSeller(userId, sellerDto);
     }
 
     @Get('info')
-    @UseGuards(AuthGuard('jwt')) // Protege la ruta con el guard de JWT
+    @Auth(validRoles.admin)
     myInfo(@Request() req) {
-        const userId = req.user.id; // Obtén el user_id del JWT
+        const userId = req.user.id;
         return this.authService.myInfo(userId);
+    }
+
+    @Get('users')
+    @Auth(validRoles.admin)
+    findAll(@Query() paginationDto: PaginationDto) {
+        return this.authService.findAll(paginationDto);
+    }
+
+    @Get('users:name')
+    @Auth(validRoles.admin)
+    findByName(@Param('name') name:string, @Query() paginationDto: PaginationDto) {
+        return this.authService.findByName(name, paginationDto);
+    }
+
+    @Put()
+    @Auth(validRoles.admin)
+    update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+        const userId = req.user.id;
+        return this.authService.update(userId, updateUserDto);
+    }
+
+    @Delete(':id')
+    @Auth(validRoles.admin)
+    delete(@Param('id') id: string) {
+        return this.authService.delete(id);
     }
 
 }

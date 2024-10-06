@@ -5,7 +5,7 @@ export class CreateUserDto{
     @IsEmail()
     email: string;
     @IsString()
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {message: 'Password too weak'})
+    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {message: 'La contraseña es muy débil o tiene caracteres especiales'})
     password:string;
     @IsString()
     name:string;
