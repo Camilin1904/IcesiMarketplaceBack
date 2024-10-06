@@ -5,10 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { isUUID } from 'class-validator';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../../src/common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
-import { User } from 'src/auth/entities/user.entity';
-import { AuthService } from 'src/auth/auth.service';
+import { User } from 's../../src/auth/entities/user.entity';
+import { AuthService } from '../../src/auth/auth.service';
 
 @Injectable()
 export class CategoriesService {

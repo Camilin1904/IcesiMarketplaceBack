@@ -6,11 +6,11 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
-import { Category } from 'src/categories/entities/category.entity';
-import { CategoriesService } from 'src/categories/categories.service';
-import { AuthService } from 'src/auth/auth.service';
-import { User } from 'src/auth/entities/user.entity';
+import { AuthService } from '../../src/auth/auth.service';
+import { User } from '../../src/auth/entities/user.entity';
 import { SubscribeProductDto } from './dto/subscribe-product.dto';
+import { Category } from '../categories/entities/category.entity';
+import { CategoriesService } from '../categories/categories.service';
 
 
 

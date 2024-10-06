@@ -4,6 +4,8 @@
 /build
 /pgadmin-data
 /postgres-data
+pgadmin-data/
+postgres-data/
 
 # Logs
 logs

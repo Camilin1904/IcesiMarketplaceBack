@@ -1,14 +1,15 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import createApp from './app';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist:true,
-      forbidNonWhitelisted:true
-}));
-  await app.listen(3000);
+    const application = await createApp();
+    application.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+        }),
+    );
+    await application.listen(3000);
 }
+
 bootstrap();

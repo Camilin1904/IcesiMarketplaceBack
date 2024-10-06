@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post, Request, Put, Delete, Query, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Put, Delete, Query, Param, ConsoleLogger } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { SellerDto } from './dtos/seller-dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { validRoles } from './interfaces/valid-roles';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
@@ -23,14 +23,14 @@ export class AuthController {
     }
 
     @Post('seller')
-    @Auth(validRoles.admin)
+    @Auth()
     becomeSeller(@Request() req, @Body() sellerDto: SellerDto) {
-        const userId = req.user.userId;
+        const userId = req.user.id;
         return this.authService.becomeSeller(userId, sellerDto);
     }
 
     @Get('info')
-    @Auth(validRoles.admin)
+    @Auth()
     myInfo(@Request() req) {
         const userId = req.user.id;
         return this.authService.myInfo(userId);
@@ -42,14 +42,14 @@ export class AuthController {
         return this.authService.findAll(paginationDto);
     }
 
-    @Get('users:name')
+    @Get(':name')
     @Auth(validRoles.admin)
     findByName(@Param('name') name:string, @Query() paginationDto: PaginationDto) {
         return this.authService.findByName(name, paginationDto);
     }
 
     @Put()
-    @Auth(validRoles.admin)
+    @Auth()
     update(@Request() req, @Body() updateUserDto: UpdateUserDto) {
         const userId = req.user.id;
         return this.authService.update(userId, updateUserDto);

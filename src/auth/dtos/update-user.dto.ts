@@ -5,8 +5,8 @@ export class UpdateUserDto{
     @IsString()
     @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/, {message: 'La contraseña es muy débil o tiene caracteres especiales'})
     password:string;
-    @IsString()
     @IsOptional()
+    @IsString()
     name:string;
     @IsOptional()
     @IsString()

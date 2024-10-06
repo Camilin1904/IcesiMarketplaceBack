@@ -3,8 +3,8 @@ import { Controller, Get, Post,Param, ParseIntPipe, Body, ValidationPipe, UsePip
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { SubscribeProductDto } from './dto/subscribe-product.dto';
+import { Auth } from '../../src/auth/decorators/auth.decorator';
 
 @Controller('products')
 export class ProductsController {
@@ -16,7 +16,7 @@ export class ProductsController {
         return this.productsService.findAll();  
     }
     
-    @UseGuards(AuthGuard('jwt'))        
+    @Auth()      
     @Post('subscribe')
     subscribe(@Request() req, @Body() subscribeProductDto:SubscribeProductDto){
         return this.productsService.subscribe(subscribeProductDto,req.user.id)
@@ -24,7 +24,7 @@ export class ProductsController {
     
     @Post()
     @UsePipes(ValidationPipe)
-    @UseGuards(AuthGuard('jwt'))        
+    @Auth()      
     async create(@Request() req, @Body() car:CreateProductDto){
         const uId:string = req.user.id;
         return this.productsService.create(car, uId);

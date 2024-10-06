@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { SellerDto } from './dtos/seller-dto';
 import { validRoles } from './interfaces/valid-roles';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
 export class AuthService {
@@ -108,6 +108,12 @@ export class AuthService {
             where: {name},
             take:limit,
             skip:offset,
+        });
+    }
+
+    findByEmail(email:string) {
+        return this.userRepository.findOne({
+            where: {email}
         });
     }
 

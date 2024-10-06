@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from "typeorm";
-import { Product } from "src/products/entities/product.entity";
-import { Category } from "src/categories/entities/category.entity";
+import { Product } from "../../products/entities/product.entity";
+import { Category } from "../../categories/entities/category.entity";
 
 
 @Entity('users')

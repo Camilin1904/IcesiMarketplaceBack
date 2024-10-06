@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { Auth } from '../../src/auth/decorators/auth.decorator';
+import { PassportModule } from '@nestjs/passport';
 
 @Controller('categories')
 export class CategoriesController {
@@ -36,7 +37,7 @@ export class CategoriesController {
   }
 
   @Post('subscribe')
-  @UseGuards(AuthGuard('jwt'))
+  @Auth()
   subscribe(@Request() req, @Body() subscribeCategoryDto:SubscribeCategoryDto){
     return this.categoriesService.subscribe(subscribeCategoryDto, req.user.id)
   }

@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm"
-import { User } from "src/auth/entities/user.entity";
-import { Category } from "src/categories/entities/category.entity";
+import { User } from "../../auth/entities/user.entity";
+import { Category } from "../../categories/entities/category.entity";
 
 @Entity()
 export class Product{
