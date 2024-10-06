@@ -10,6 +10,7 @@ import { Category } from 'src/categories/entities/category.entity';
 import { CategoriesService } from 'src/categories/categories.service';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/auth/entities/user.entity';
+import { SubscribeProductDto } from './dto/subscribe-product.dto';
 
 
 
@@ -49,7 +50,7 @@ export class ProductsService {
             name: product.name,
             inStock: true,
             owner: owner,
-            bought: []
+            subscribers: []
         };
         this.products.save(newProduct);
         return newProduct;
@@ -69,7 +70,7 @@ export class ProductsService {
       
         // Clear the relations before deleting the product
         product.categories = [];
-        product.bought = [];
+        product.subscribers = [];
         await this.products.save(product);
       
         // Now delete the product
@@ -93,6 +94,20 @@ export class ProductsService {
         .getMany();
         return products;
 
+    }
+
+    async subscribe(id:SubscribeProductDto, buyer: string){
+        const product = await this.findById(id.productId);
+        const user:User = await this.authService.myInfo(buyer);
+        try{
+            product.subscribers.push(user)
+        }
+        catch{
+            product.subscribers = [user]
+        }
+        await this.products.save(product);
+
+        return product;
     }
     
 

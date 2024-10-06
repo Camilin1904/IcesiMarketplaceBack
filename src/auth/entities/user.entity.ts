@@ -32,9 +32,9 @@ export class User{
     @OneToMany(()=>Product, (product)=>product.owner)
     products:Product[]
 
-    @ManyToMany(()=>Product, (product) => product.bought)
-    bought:Product[]
+    @ManyToMany(()=>Product, (product) => product.subscribers)
+    product_subscriptions:Product[]
 
-    @ManyToMany(()=>Category, (category) => category.users)
-    categories:Category[]
+    @ManyToMany(()=>Category, (category) => category.subscribers)
+    category_subscriptions:Category[]
 }

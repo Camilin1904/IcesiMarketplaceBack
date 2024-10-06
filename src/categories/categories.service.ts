@@ -6,11 +6,14 @@ import { Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { isUUID } from 'class-validator';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
+import { User } from 'src/auth/entities/user.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class CategoriesService {
 
-  constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>){}
+  constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>, private readonly authService:AuthService){}
 
   // Crear una categoría
   create(createCategoryDto: CreateCategoryDto) {
@@ -70,4 +73,18 @@ export class CategoriesService {
     const category = await this.findOne(id);
     return this.categoryRepository.remove(category);
   }
+
+  async subscribe(id:SubscribeCategoryDto, buyer: string){
+    const product = await this.findOne(id.categoryId);
+    const user:User = await this.authService.myInfo(buyer);
+    try{
+        product.subscribers.push(user)
+    }
+    catch{
+        product.subscribers = [user]
+    }
+    await this.categoryRepository.save(product);
+
+    return product;
+}
 }

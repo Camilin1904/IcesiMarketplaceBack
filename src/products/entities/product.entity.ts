@@ -28,9 +28,9 @@ export class Product{
     owner: User
 
     // Un producto puede haber sido comprado por muchos usuarios y un usuario puede haber comprado muchos productos
-    @ManyToMany(() => User, (user) => user.bought, {nullable:true, cascade:true})
+    @ManyToMany(() => User, (user) => user.product_subscriptions, {nullable:true, cascade:true})
     @JoinTable()
-    bought: User[]
+    subscribers: User[]
 
     //@OneToMany(()=>Product_Category, (product_category)=>product_category.product)
     //subscribers:Product_Category;

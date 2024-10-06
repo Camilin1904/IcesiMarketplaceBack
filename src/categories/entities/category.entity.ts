@@ -22,9 +22,9 @@ export class Category {
     products:Product[];
 
     // Un usuario puede suscribirse a muchas categorías y una categoría puede tener suscritos muchos usuarios
-    @ManyToMany(()=>User, (user) => user.categories)
+    @ManyToMany(()=>User, (user) => user.category_subscriptions)
     @JoinTable()
-    users: User[];
+    subscribers: User[];
 
     @BeforeInsert()
     checkSlug():void{
