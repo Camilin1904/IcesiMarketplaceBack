@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import {v4 as uuid} from 'uuid'
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -14,9 +14,6 @@ import { CategoriesService } from '../categories/categories.service';
 import { use } from 'passport';
 import { Vonage } from '@vonage/server-sdk';
 
-
-
-
 @Injectable()
 export class ProductsService {
     constructor (@InjectRepository(Product) private readonly products:Repository<Product>, private readonly categoriesService:CategoriesService, private readonly authService:AuthService){}
@@ -28,45 +25,48 @@ export class ProductsService {
         }
         return product;
     }
+
     async findAll(){
         return this.products.find();
     }
     
     async create(product:CreateProductDto, uId:string){
-        const categoriesId:string[] = product.categories;
-        var categories: Category[] = [];
-        for (const cat of categoriesId){
-            categories.push(await this.categoriesService.findOne(cat))
-            this.categoriesService.notify(cat, `hay nuevos productos que te pueden interesar`)
+        try {
+            const categoriesId:string[] = product.categories;
+            var categories: Category[] = [];
+            for (const cat of categoriesId){
+                categories.push(await this.categoriesService.findOne(cat))
+                this.categoriesService.notify(cat, `hay nuevos productos que te pueden interesar`)
+            }
+            /*Promise.all(categoriesId.map(this.categoriesService.findOne))
+                .then(
+                    cats =>{
+                        categories = cats;
+                    }
+                )*/
+            const owner: User = await this.authService.myInfo(uId);
+            const newProduct:Product = {
+                id: uuid(), 
+                categories: categories, 
+                cost: product.cost, 
+                description: product.description, 
+                name: product.name,
+                inStock: true,
+                owner: owner,
+                subscribers: []
+            };
+            this.products.save(newProduct);
+            return newProduct;
+        } catch (e) {
+            this.handleDBErrors(e)
         }
-        /*Promise.all(categoriesId.map(this.categoriesService.findOne))
-            .then(
-                cats =>{
-                    categories = cats;
-                }
-            )*/
-        const owner: User = await this.authService.myInfo(uId);
-        const newProduct:Product = {
-            id: uuid(), 
-            categories: categories, 
-            cost: product.cost, 
-            description: product.description, 
-            name: product.name,
-            inStock: true,
-            owner: owner,
-            subscribers: []
-        };
-        this.products.save(newProduct);
-        return newProduct;
+        
     }
         
 
     async delete(id: string) {
         // First, find the product with its relations
-        const product = await this.products.findOne({
-          where: { id },
-          relations: ['categories', 'bought'], // Include all relations that need to be cleared
-        });
+        const product = await this.products.findOneBy({id})
       
         if (!product) {
           throw new Error(`Product with ID ${id} not found`);
@@ -78,8 +78,7 @@ export class ProductsService {
         await this.products.save(product);
       
         // Now delete the product
-        const result = await this.products.delete(id);
-        return result;
+        return await this.products.delete(id);
       }
       
 
@@ -166,6 +165,11 @@ export class ProductsService {
         catch{}
 
         
+    }
+
+    private handleDBErrors(error: any){
+
+        throw new InternalServerErrorException('Error creating product')
     }
     
 

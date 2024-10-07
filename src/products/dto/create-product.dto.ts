@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsInt, IsNumber, IsString, isString, Max, Min } from "class-validator";
+import { ArrayMinSize, IsArray, IsNumber, IsString, Min } from "class-validator";
 
 export class CreateProductDto{
     @IsString()

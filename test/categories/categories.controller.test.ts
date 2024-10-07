@@ -17,13 +17,13 @@ describe('CategoriesController (e2e)', () => {
     let wrongId = crypto.randomUUID();
 
     const createUserDto: CreateUserDto = {
-        email: 'test@example.com',
+        email: 'category@example.com',
         password: 'StrongPass1',
-        name: 'Test User',
+        name: 'Category User',
       };
     
     const loginUserDto: LoginUserDto = {
-    email: 'test@example.com',
+    email: 'category@example.com',
     password: 'StrongPass1',
     };
 
@@ -46,21 +46,38 @@ describe('CategoriesController (e2e)', () => {
         );
         await app.init();
 
-        request(app.getHttpServer())
+        await request(app.getHttpServer())
         .post('/auth/register')
         .send(createUserDto)
 
-        request(app.getHttpServer())
+        await request(app.getHttpServer())
         .post('/auth/login')
         .send(loginUserDto)
         .then(({ body }) => {
-          expect(body.token).toBeDefined();
           accessToken = body.token;
         });
-    });
+
+        await request(app.getHttpServer())
+        .post('/auth/seller')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(sellerDto)
+    }, 70 * 1000);
 
     afterAll(async () => {
-        await app.close();
+        // Limpiar la base de datos
+        const dataSource = app.get<DataSource>(getDataSourceToken());
+    
+        // Obtener los nombres de todas las tablas
+        const tables = await dataSource.query(`
+          SELECT table_name 
+          FROM information_schema.tables 
+          WHERE table_schema = 'public';  -- Cambia esto si usas otro esquema
+        `);
+    
+        // Borrar todas las tablas
+        for (const table of tables) {
+          await dataSource.query(`DROP TABLE IF EXISTS "${table.table_name}" CASCADE;`);
+        }
     });
 
     // Variables de prueba para ser reutilizadas
@@ -75,105 +92,112 @@ describe('CategoriesController (e2e)', () => {
     };
 
     describe('/categories (POST)', () => {
-    it('should create a new category', async () => {
-        return await request(app.getHttpServer())
-        .post('/categories')
-        .send(createCategoryDto)
-        .expect(201)
-        .then(({ body }) => {
-            categoryId = body.id; // Guardamos el ID de la categoría para futuras pruebas
-            expect(body.name).toEqual(createCategoryDto.name);
-            expect(body.description).toEqual(createCategoryDto.description);
+        it('should create a new category', () => {
+            return request(app.getHttpServer())
+            .post('/categories')
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send(createCategoryDto)
+            .expect(201)
+            .then(({ body }) => {
+                categoryId = body.id; // Guardamos el ID de la categoría para futuras pruebas
+                expect(body.name).toEqual(createCategoryDto.name);
+                expect(body.description).toEqual(createCategoryDto.description);
+            });
         });
-    });
     });
 
     describe('/categories (GET)', () => {
-    it('should return a list of categories with pagination', async () => {
-        return request(app.getHttpServer())
-        .get('/categories')
-        .query({ limit: 10, offset: 0 })
-        .expect(200)
-        .then(({ body }) => {
-            expect(Array.isArray(body)).toBe(true);
-            expect(body.length).toBeGreaterThan(0); // Verificamos que haya al menos una categoría
+        it('should return a list of categories with pagination', async () => {
+            return request(app.getHttpServer())
+            .get('/categories')
+            .set('Authorization', `Bearer ${accessToken}`)
+            .query({ limit: 10, offset: 0 })
+            .expect(200)
+            .then(({ body }) => {
+                expect(Array.isArray(body)).toBe(true);
+                expect(body.length).toBeGreaterThan(0); // Verificamos que haya al menos una categoría
+            });
         });
-    });
     });
 
     describe('/categories/:term (GET)', () => {
-    it('should return a category by its name or slug', async () => {
-        return request(app.getHttpServer())
-        .get(`/categories/${createCategoryDto.name}`)
-        .expect(200)
-        .then(({ body }) => {
-            expect(body.name).toEqual(createCategoryDto.name);
-            expect(body.description).toEqual(createCategoryDto.description);
+        it('should return a category by its name or slug', async () => {
+            return request(app.getHttpServer())
+            .get(`/categories/${createCategoryDto.name}`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.name).toEqual(createCategoryDto.name);
+                expect(body.description).toEqual(createCategoryDto.description);
+            });
         });
-    });
 
-    it('should return 404 if category does not exist', async () => {
-        return request(app.getHttpServer())
-        .get('/categories/nonexistent-category')
-        .expect(404);
-    });
+        it('should return 404 if category does not exist', async () => {
+            return request(app.getHttpServer())
+            .get('/categories/nonexistent-category')
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(404);
+        });
     });
 
     describe('/categories/:id (PATCH)', () => {
-    it('should update a category by ID', async () => {
-        return request(app.getHttpServer())
-        .patch(`/categories/${categoryId}`)
-        .send(updateCategoryDto)
-        .expect(200)
-        .then(({ body }) => {
-            expect(body.name).toEqual(updateCategoryDto.name);
-            expect(body.description).toEqual(updateCategoryDto.description);
+        it('should update a category by ID', async () => {
+            return request(app.getHttpServer())
+            .patch(`/categories/${categoryId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send(updateCategoryDto)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.name).toEqual(updateCategoryDto.name);
+                expect(body.description).toEqual(updateCategoryDto.description);
+            });
+        });
+        it('should return 404 if category does not exist', async () => {
+            return request(app.getHttpServer())
+            .patch(`/categories/${wrongId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .send(updateCategoryDto)
+            .expect(404);
         });
     });
-    it('should return 404 if category does not exist', async () => {
-        return request(app.getHttpServer())
-        .patch(`/categories/${wrongId}`)
-        .send(updateCategoryDto)
-        .expect(404);
-    });
+
+    describe('/categories/subscribe (POST)', () => {
+        it('should subscribe a user to a category', async () => {
+            return request(app.getHttpServer())
+            .post('/categories/subscribe')
+            .set('Authorization', `Bearer ${accessToken}`) // Autenticación
+            .send({ categoryId }) // El ID de la categoría a la que se suscribe el usuario
+            .expect(201)
+            .then(({ body }) => {
+                expect(body.name).toEqual(updateCategoryDto.name);
+            });
+        });
+    
+        it('should return 401 if user is not authenticated', async () => {
+            return request(app.getHttpServer())
+            .post('/categories/subscribe')
+            .send({ categoryId })
+            .expect(401);
+        });
     });
     
     describe('/categories/:id (DELETE)', () => {
-    it('should delete a category by ID', async () => {
-        return request(app.getHttpServer())
-        .delete(`/categories/${categoryId}`)
-        .expect(200)
-        .then(({ body }) => {
-            expect(body.name).toEqual(updateCategoryDto.name);
+        it('should delete a category by ID', async () => {
+            return request(app.getHttpServer())
+            .delete(`/categories/${categoryId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.name).toEqual(updateCategoryDto.name);
+            });
+        });
+
+        it('should return 404 if category does not exist', async () => {
+            return request(app.getHttpServer())
+            .delete(`/categories/${wrongId}`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(404);
         });
     });
-
-    it('should return 404 if category does not exist', async () => {
-        return request(app.getHttpServer())
-        .delete(`/categories/${wrongId}`)
-        .expect(404);
-    });
-    });
-    /*
-    // Si hay autenticación, puedes agregar una prueba para la suscripción a una categoría
-    describe('/categories/subscribe (POST)', () => {
-    it('should subscribe a user to a category', async () => {
-        return request(app.getHttpServer())
-        .post('/categories/subscribe')
-        .set('Authorization', `Bearer ${accessToken}`) // Autenticación
-        .send({ categoryId }) // El ID de la categoría a la que se suscribe el usuario
-        .expect(201)
-        .then(({ body }) => {
-            expect(body.message).toEqual('Subscribed to category successfully');
-        });
-    });
-
-    it('should return 401 if user is not authenticated', async () => {
-        return request(app.getHttpServer())
-        .post('/categories/subscribe')
-        .send({ categoryId })
-        .expect(401);
-    });
-    });
-    */
+    
 });

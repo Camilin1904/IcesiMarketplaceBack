@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, isString, IsUUID, Max, Min } from "class-validator";
+import { ArrayMinSize, IsArray, IsBoolean, IsNumber, IsOptional, IsString, IsUUID, Min } from "class-validator";
 
 export class UpdateProductDto{
 

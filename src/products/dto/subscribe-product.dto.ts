@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsInt, IsNumber, IsString, isString, IsUUID, Max, Min } from "class-validator";
+import {IsString, IsUUID, } from "class-validator";
 
 export class SubscribeProductDto{
     @IsString()

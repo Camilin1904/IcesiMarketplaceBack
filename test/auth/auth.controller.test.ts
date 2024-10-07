@@ -5,9 +5,8 @@ import { AppModule } from '../../src/app.module';
 import { CreateUserDto } from '../../src/auth/dtos/create-user.dto';
 import { LoginUserDto } from '../../src/auth/dtos/login-user.dto';
 import { SellerDto } from '../../src/auth/dtos/seller-dto';
-import { UpdateUserDto } from '../../src/auth/dtos/update-user.dto';
-import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 
 describe('AuthController (e2e)', () => {
@@ -27,19 +26,25 @@ describe('AuthController (e2e)', () => {
         forbidNonWhitelisted: true,
       }),
     );
+    
     await app.init();
-  });
+  }, 70 * 1000);
 
   afterAll(async () => {
+    // Limpiar la base de datos
     const dataSource = app.get<DataSource>(getDataSourceToken());
-    const entities = dataSource.entityMetadatas;
-  
-    for (const entity of entities) {
-      const repository = dataSource.getRepository(entity.name);
-      await repository.query(`DELETE FROM ${entity.tableName}`);
+
+    // Obtener los nombres de todas las tablas
+    const tables = await dataSource.query(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public';  -- Cambia esto si usas otro esquema
+    `);
+
+    // Borrar todas las tablas
+    for (const table of tables) {
+      await dataSource.query(`DROP TABLE IF EXISTS "${table.table_name}" CASCADE;`);
     }
-  
-    await app.close();
   });
 
   // Variables de prueba para ser reutilizadas
@@ -166,7 +171,6 @@ describe('AuthController (e2e)', () => {
         .send(updateUserDto)
         .expect(200)
         .then(({ body }) => {
-          console.log(body)
           expect(body.name).toEqual(updateUserDto.name);
         });
     });
@@ -183,4 +187,23 @@ describe('AuthController (e2e)', () => {
         });
     });
   });
+
+  describe('Inactive jwt', () => {
+    it('should return 401 since the user is not valid', async () => {
+        return request(app.getHttpServer())
+        .get('/auth/info')
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(401)
+    });
+  })
+
+  describe('Not valid jwt', () => {
+    it('should return 401 since the jwt is wrong', async () => {
+      const wrongToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      return request(app.getHttpServer())
+        .get('/auth/info')
+        .set('Authorization', `Bearer ${wrongToken}`)
+        .expect(401)
+    });
+  })
 });

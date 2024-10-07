@@ -25,6 +25,7 @@ describe('AuthService', () => {
         password: hashedPassword
     };
     const createUserDto: CreateUserDto = { email: 'test@example.com', password: password, name: 'Test User' };
+    const createUserDto2: CreateUserDto = { email: 'tes2t@example.com', password: password, name: 'Test User2' };
     const loginUserDto: LoginUserDto = { email: 'test@example.com', password: 'StrongPass1' };
     const paginationDto: PaginationDto = { limit: 10, offset: 0 };
 
@@ -75,6 +76,16 @@ describe('AuthService', () => {
             const result = await service.createUser(createUserDto);
         
             expect(result).toEqual({ ...createUserDto, password: hashedPassword, roles: [validRoles.user, validRoles.admin] });
+        });
+
+        it('should create a user with only user role when users already exist', async () => {
+          mockUserRepository.find.mockResolvedValueOnce([{ id: '1', email: 'existing@example.com' }]); // Simula que ya hay usuarios
+          mockUserRepository.create.mockReturnValue({ ...createUserDto, password: hashedPassword, roles: [validRoles.user] });
+          mockUserRepository.save.mockResolvedValue({ ...createUserDto, password: hashedPassword });
+          
+          const result = await service.createUser(createUserDto);
+        
+          expect(result).toEqual({ ...createUserDto, password: hashedPassword, roles: [validRoles.user] });
         });
 
         it('should throw a InternalServerErrorException if the db returns an error', async () => {

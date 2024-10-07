@@ -11,7 +11,7 @@ export class Product{
     name: string;
 
     @Column('float')
-        cost: number;
+    cost: number;
 
     @Column('boolean',{default:true})
     inStock: boolean;

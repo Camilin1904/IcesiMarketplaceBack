@@ -18,11 +18,17 @@ async function closeApp() {
 
   // Limpiar la base de datos
   const dataSource = app.get<DataSource>(getDataSourceToken());
-  const entities = dataSource.entityMetadatas;
 
-  for (const entity of entities) {
-    const repository = dataSource.getRepository(entity.name);
-    await repository.query(`DELETE FROM ${entity.tableName}`);
+  // Obtener los nombres de todas las tablas
+  const tables = await dataSource.query(`
+    SELECT table_name 
+    FROM information_schema.tables 
+    WHERE table_schema = 'public';  -- Cambia esto si usas otro esquema
+  `);
+
+  // Borrar todas las tablas
+  for (const table of tables) {
+    await dataSource.query(`DROP TABLE IF EXISTS "${table.table_name}" CASCADE;`);
   }
 
   // Cerrar la aplicación
