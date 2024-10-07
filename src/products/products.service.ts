@@ -84,7 +84,7 @@ export class ProductsService {
     async update(id:string, product: UpdateProductDto){
         const productUpdate = await this.findById(id);
         
-        console.log(product)
+        //console.log(product)
         if(product.inStock) this.notify(id, `${productUpdate.name} tiene nuevas unidades ;)`);
         Object.assign(productUpdate, product);
         this.products.save(productUpdate);

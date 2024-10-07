@@ -9,7 +9,7 @@ import { SellerDto } from '../../src/auth/dtos/seller-dto';
 import crypto from 'crypto';
 import { CreateCategoryDto } from 'src/categories/dto/create-category.dto';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, getConnection } from 'typeorm';
 
 describe('ProductsController (e2e)', () => {
     let app: INestApplication;
@@ -63,6 +63,9 @@ describe('ProductsController (e2e)', () => {
             }),
         );
         await app.init();
+
+        const dataSource = app.get<DataSource>(getDataSourceToken());
+        await dataSource.synchronize()
 
         await request(app.getHttpServer())
         .post('/auth/register')

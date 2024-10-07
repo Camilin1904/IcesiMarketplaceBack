@@ -26,6 +26,9 @@ describe('AuthController (e2e)', () => {
         forbidNonWhitelisted: true,
       }),
     );
+
+    const dataSource = app.get<DataSource>(getDataSourceToken());
+    await dataSource.synchronize()
     
     await app.init();
   }, 70 * 1000);

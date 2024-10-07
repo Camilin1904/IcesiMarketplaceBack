@@ -47,6 +47,9 @@ describe('CategoriesController (e2e)', () => {
         );
         await app.init();
 
+        const dataSource = app.get<DataSource>(getDataSourceToken());
+        await dataSource.synchronize()
+
         await request(app.getHttpServer())
         .post('/auth/register')
         .send(createUserDto)
