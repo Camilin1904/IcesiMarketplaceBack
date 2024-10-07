@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import Mailgun from 'mailgun-js';
-import { Vonage } from '@vonage/server-sdk';
 import { Twilio } from 'twilio';
 
 @Injectable()
