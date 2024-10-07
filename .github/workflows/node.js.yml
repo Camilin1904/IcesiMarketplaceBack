@@ -14,8 +14,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+    
     steps:
     - uses: actions/checkout@v4
 
@@ -23,10 +22,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'yarn' # Cambiar cache de npm a yarn
+        cache: 'yarn'
 
-    - run: yarn install # Cambiar de npm ci a yarn install
+    - run: yarn install
 
-    - run: yarn build --if-present # Cambiar de npm run build a yarn build
+    # Verifica si existe un script build antes de ejecutarlo
+    - run: if [ -f package.json ] && grep -q '"build":' package.json; then yarn build; fi
 
-    - run: yarn test # Cambiar de npm test a yarn test
+    - run: yarn test
