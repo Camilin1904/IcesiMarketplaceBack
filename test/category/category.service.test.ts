@@ -10,6 +10,7 @@ import { SubscribeCategoryDto } from '../../src/categories/dto/subscribe-categor
 import { UpdateCategoryDto } from '../../src/categories/dto/update-category.dto';
 import { Category } from '../../src/categories/entities/category.entity';
 import { MailService, SmsService } from '../../src/common/common.service';
+import crypto from 'crypto';
 
 describe('CategoriesService', () => {
     let service: CategoriesService;

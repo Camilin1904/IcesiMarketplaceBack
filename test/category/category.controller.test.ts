@@ -9,6 +9,7 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { CreateUserDto } from '../../src/auth/dtos/create-user.dto';
 import { LoginUserDto } from '../../src/auth/dtos/login-user.dto';
 import { SellerDto } from '../../src/auth/dtos/seller-dto';
+import crypto from 'crypto';
 
 describe('CategoriesController (e2e)', () => {
     let app: INestApplication;
