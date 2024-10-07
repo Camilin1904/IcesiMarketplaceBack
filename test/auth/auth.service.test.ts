@@ -10,7 +10,7 @@ import { validRoles } from '../../src/auth/interfaces/valid-roles';
 import { LoginUserDto } from '../../src/auth/dtos/login-user.dto';
 import { SellerDto } from '../../src/auth/dtos/seller-dto';
 import { UpdateUserDto } from '../../src/auth/dtos/update-user.dto';
-import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { PaginationDto } from '../../src/common/dtos/pagination.dto';
 
 
 

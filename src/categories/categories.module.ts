@@ -8,11 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { MailService, SmsService } from 'src/common/common.service';
+import { MailService, SmsService } from '../common/common.service';
 
 @Module({
   controllers: [CategoriesController],
-  providers: [CategoriesService, AuthService, JwtService, MailService,SmsService],
+  providers: [CategoriesService, AuthService, JwtService, MailService, SmsService],
   imports:[
     TypeOrmModule.forFeature([Category, Product, User]),
     PassportModule.register({defaultStrategy:'jwt'})

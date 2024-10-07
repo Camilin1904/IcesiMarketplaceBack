@@ -3,8 +3,6 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { CreateProductDto } from '../../src/products/dto/create-product.dto';
-import { UpdateProductDto } from '../../src/products/dto/update-product.dto';
-import { SubscribeProductDto } from '../../src/products/dto/subscribe-product.dto';
 import { LoginUserDto } from '../../src/auth/dtos/login-user.dto';
 import { CreateUserDto } from '../../src/auth/dtos/create-user.dto';
 import { SellerDto } from '../../src/auth/dtos/seller-dto';

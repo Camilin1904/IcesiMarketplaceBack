@@ -9,7 +9,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
 import { User } from '../auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
-import { MailService, SmsService } from 'src/common/common.service';
+import { MailService, SmsService } from '../common/common.service';
 
 @Injectable()
 export class CategoriesService {

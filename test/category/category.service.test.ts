@@ -9,9 +9,14 @@ import { CreateCategoryDto } from '../../src/categories/dto/create-category.dto'
 import { SubscribeCategoryDto } from '../../src/categories/dto/subscribe-category.dto';
 import { UpdateCategoryDto } from '../../src/categories/dto/update-category.dto';
 import { Category } from '../../src/categories/entities/category.entity';
+import { MailService, SmsService } from '../../src/common/common.service';
 
 describe('CategoriesService', () => {
     let service: CategoriesService;
+
+    const mockSms = {}
+
+    const mockMail = {}
 
     const mockCategoryRepository = {
         create: jest.fn(),
@@ -61,6 +66,14 @@ describe('CategoriesService', () => {
                     provide: AuthService,
                     useValue: mockAuthService,
                 },
+                {
+                    provide: SmsService,
+                    useValue: mockSms
+                },
+                {
+                    provide: MailService,
+                    useValue: mockMail
+                }
             ],
         }).compile();
 

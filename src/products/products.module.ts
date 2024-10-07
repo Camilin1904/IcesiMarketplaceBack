@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { MailService, SmsService } from 'src/common/common.service';
+import { MailService, SmsService } from '../common/common.service';
 
 @Module({
     controllers:[ProductsController],

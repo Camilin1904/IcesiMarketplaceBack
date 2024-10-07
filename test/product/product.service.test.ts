@@ -10,11 +10,16 @@ import { UpdateProductDto } from '../../src/products/dto/update-product.dto';
 import { SubscribeProductDto } from '../../src/products/dto/subscribe-product.dto';
 import { User } from '../../src/auth/entities/user.entity';
 import { Category } from '../../src/categories/entities/category.entity';
-import { Repository } from 'typeorm';
+import { MailService, SmsService } from '../../src/common/common.service';
 
 describe('ProductsService', () => {
     let service: ProductsService;
     let productId: string
+
+    const mockSms = {}
+
+    const mockMail = {}
+
     const mockProductRepository = {
         create: jest.fn(),
         save: jest.fn(),
@@ -83,6 +88,14 @@ describe('ProductsService', () => {
                     provide: CategoriesService,
                     useValue: mockCategoriesService,
                 },
+                {
+                    provide: SmsService,
+                    useValue: mockSms
+                },
+                {
+                    provide: MailService,
+                    useValue: mockMail
+                }
             ],
         }).compile();
 

@@ -11,9 +11,7 @@ import { User } from '../auth/entities/user.entity';
 import { SubscribeProductDto } from './dto/subscribe-product.dto';
 import { Category } from '../categories/entities/category.entity';
 import { CategoriesService } from '../categories/categories.service';
-import { use } from 'passport';
-import { Vonage } from '@vonage/server-sdk';
-import { MailService, SmsService } from 'src/common/common.service';
+import { MailService, SmsService } from '../common/common.service';
 
 @Injectable()
 export class ProductsService {
