@@ -5,6 +5,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { SubscribeProductDto } from './dto/subscribe-product.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
+import { validRoles } from '../auth/interfaces/valid-roles';
 
 @Controller('products')
 export class ProductsController {
@@ -24,7 +25,7 @@ export class ProductsController {
     
     @Post()
     @UsePipes(ValidationPipe)
-    @Auth()      
+    @Auth(validRoles.seller)      
     async create(@Request() req, @Body() car:CreateProductDto){
         const uId:string = req.user.id;
         return this.productsService.create(car, uId);
@@ -41,11 +42,13 @@ export class ProductsController {
     }
 
     @Delete(':id')
+    @Auth(validRoles.seller)
     async delete(@Param('id', ParseUUIDPipe)id :string){
         return this.productsService.delete(id);
     }
 
     @Patch(':id')
+    @Auth(validRoles.seller)
     update(@Param('id', ParseUUIDPipe) id:string, @Body() body:UpdateProductDto){
         return this.productsService.update(id,body);
     }
