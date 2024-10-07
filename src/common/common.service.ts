@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import Mailgun from 'mailgun-js';
+//import Mailgun from 'mailgun-js';
 import { Twilio } from 'twilio';
 
-@Injectable()
+/**@Injectable()
 export class MailService {
   private mailgun: Mailgun.Mailgun;
 
@@ -28,7 +28,7 @@ export class MailService {
       throw error;
     }
   }
-}
+}*/
 
 @Injectable()
 export class SmsService {

@@ -11,14 +11,16 @@ import { User } from '../auth/entities/user.entity';
 import { SubscribeProductDto } from './dto/subscribe-product.dto';
 import { Category } from '../categories/entities/category.entity';
 import { CategoriesService } from '../categories/categories.service';
-import { MailService, SmsService } from '../common/common.service';
+import { 
+    //MailService, 
+    SmsService } from '../common/common.service';
 
 @Injectable()
 export class ProductsService {
     constructor (@InjectRepository(Product) private readonly products:Repository<Product>, 
     private readonly categoriesService:CategoriesService, 
     private readonly authService:AuthService,
-    private readonly mailService:MailService,
+    //private readonly mailService:MailService,
     private readonly smsService:SmsService
 ){}
 
@@ -127,7 +129,7 @@ export class ProductsService {
                 if ((Date.now()-user.lastNotified.getTime()) >= 10800000){
 
                     
-                    this.mailService.sendEmail(user.email, "Te puede interesar", message)
+                    //this.mailService.sendEmail(user.email, "Te puede interesar", message)
 
                     this.smsService.sendSms("573022852699", message)
 

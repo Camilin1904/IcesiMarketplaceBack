@@ -9,14 +9,15 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
 import { User } from '../auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
-import { MailService, SmsService } from '../common/common.service';
+//import { MailService, SmsService } from '../common/common.service';
+import {SmsService } from '../common/common.service';
 
 @Injectable()
 export class CategoriesService {
 
   constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>, 
   private readonly authService:AuthService,
-  private readonly mailService:MailService,
+  //private readonly mailService:MailService,
   private readonly smsService:SmsService
 ){}
 
@@ -109,7 +110,7 @@ export class CategoriesService {
             if ((Date.now()-user.lastNotified.getTime()) >= 10800000){
 
                 
-                this.mailService.sendEmail(user.email, "Te puede interesar", message)
+                //this.mailService.sendEmail(user.email, "Te puede interesar", message)
 
                 this.smsService.sendSms("573022852699", message)
 
