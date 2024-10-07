@@ -9,7 +9,7 @@ async function bootstrap() {
             forbidNonWhitelisted: true,
         }),
     );
-    await application.listen(3000);
+    await application.listen(process.env.PORT || 3000);
 }
 
 bootstrap();
