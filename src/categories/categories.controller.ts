@@ -18,13 +18,13 @@ export class CategoriesController {
   }
 
   @Get()
-  @Auth(validRoles.seller)
+  @Auth()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.categoriesService.findAll(paginationDto);
   }
 
   @Get(':term')
-  @Auth(validRoles.seller)
+  @Auth()
   findOne(@Param('term') term: string) {
     return this.categoriesService.findOne(term);
   }
