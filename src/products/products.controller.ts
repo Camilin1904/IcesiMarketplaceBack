@@ -48,7 +48,7 @@ export class ProductsController {
     }
 
     @Patch(':id')
-    @Auth(validRoles.seller)
+    //@Auth(validRoles.seller)
     update(@Param('id', ParseUUIDPipe) id:string, @Body() body:UpdateProductDto){
         return this.productsService.update(id,body);
     }

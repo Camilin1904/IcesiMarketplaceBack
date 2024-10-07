@@ -13,10 +13,16 @@ import { Category } from '../categories/entities/category.entity';
 import { CategoriesService } from '../categories/categories.service';
 import { use } from 'passport';
 import { Vonage } from '@vonage/server-sdk';
+import { MailService, SmsService } from 'src/common/common.service';
 
 @Injectable()
 export class ProductsService {
-    constructor (@InjectRepository(Product) private readonly products:Repository<Product>, private readonly categoriesService:CategoriesService, private readonly authService:AuthService){}
+    constructor (@InjectRepository(Product) private readonly products:Repository<Product>, 
+    private readonly categoriesService:CategoriesService, 
+    private readonly authService:AuthService,
+    private readonly mailService:MailService,
+    private readonly smsService:SmsService
+){}
 
     async findById(id: string){
         const product= await this.products.findOneBy({id:id});
@@ -35,15 +41,10 @@ export class ProductsService {
             const categoriesId:string[] = product.categories;
             var categories: Category[] = [];
             for (const cat of categoriesId){
-                categories.push(await this.categoriesService.findOne(cat))
-                this.categoriesService.notify(cat, `hay nuevos productos que te pueden interesar`)
+                const thisCat: Category = await this.categoriesService.findOne(cat)
+                categories.push(thisCat)
+                this.categoriesService.notify(cat, `Como sabemos que amas ${thisCat.name}, te puede interesar ${product.name}, por solo ${product.cost}`)
             }
-            /*Promise.all(categoriesId.map(this.categoriesService.findOne))
-                .then(
-                    cats =>{
-                        categories = cats;
-                    }
-                )*/
             const owner: User = await this.authService.myInfo(uId);
             const newProduct:Product = {
                 id: uuid(), 
@@ -84,6 +85,8 @@ export class ProductsService {
 
     async update(id:string, product: UpdateProductDto){
         const productUpdate = await this.findById(id);
+        
+        console.log(product)
         if(product.inStock) this.notify(id, `${productUpdate.name} tiene nuevas unidades ;)`);
         Object.assign(productUpdate, product);
         this.products.save(productUpdate);
@@ -116,65 +119,20 @@ export class ProductsService {
 
     async notify(id:string, message:string){
         const product: Product = await this.findById(id);
-
         const users:User[] = await this.products
                             .createQueryBuilder()
                             .relation(Product, 'subscribers')
                             .of(id)
                             .loadMany();
-        
         try{
             for (const user of users){
-                console.log(user)
                 if ((Date.now()-user.lastNotified.getTime()) >= 10800000){
-                    console.log('Notify user ' + user.name);
-                    console.log(message);
 
-                    const formData = require('form-data');
-                    const Mailgun = require('mailgun.js');
-                    const mailgun = new Mailgun(formData);
-                    const mg = mailgun.client({username: 'api', key: process.env.MAILGUN_API_KEY || 'key-yourkeyhere' });
                     
-                    mg.messages.create('sandbox-123.mailgun.org', {
-                        from: "Excited User <mailgun@sandbox588ae5f8f8d74192b4ae678d67aff95b.mailgun.org>",
-                        to: ["cami.car.val@outlook.com"],
-                        subject: "please :)",
-                        text: message,
-                        html: `<h1>${message}</h1>`
-                    })
-                    .then(msg => console.log(msg)) // logs response data
-                    .catch(err => console.log(err)); // logs any error
+                    this.mailService.sendEmail(user.email, "Te puede interesar", message)
 
-/*
-                    const { Vonage } = require('@vonage/server-sdk')
+                    this.smsService.sendSms("573022852699", message)
 
-                    const vonage = new Vonage({
-                        apiKey: process.env.API_KEY,
-                        apiSecret: process.env.API_SECRET
-                    });
-                    const from = "Vonage APIs"
-                    const to = "573052631250"
-                    async function sendSMS() {
-                        await vonage.sms.send({to, from, message})
-                            .then(resp => { console.log('Message sent successfully'); console.log(resp); })
-                            .catch(err => { console.log('There was an error sending the messages.'); console.error(err); });
-                    }
-                    
-                    sendSMS();
-/*
-                    const twilio = require('twilio');
-
-                    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-                    const authToken = process.env.TWILIO_AUTH_TOKEN;
-
-                    const client = twilio(accountSid, authToken);
-
-                    client.messages.create({
-                        body: message,
-                        messagingServiceSid: 'MGfd189b270863568e7f3666a8ea1eab1b',
-                        to: '+573052631250'
-                    }).then(message => console.log(message.sid));
-*/
 
                 }
             }

@@ -9,11 +9,16 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { SubscribeCategoryDto } from './dto/subscribe-category.dto';
 import { User } from '../auth/entities/user.entity';
 import { AuthService } from '../auth/auth.service';
+import { MailService, SmsService } from 'src/common/common.service';
 
 @Injectable()
 export class CategoriesService {
 
-  constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>, private readonly authService:AuthService){}
+  constructor(@InjectRepository(Category) private readonly categoryRepository: Repository<Category>, 
+  private readonly authService:AuthService,
+  private readonly mailService:MailService,
+  private readonly smsService:SmsService
+){}
 
   // Crear una categoría
   async create(createCategoryDto: CreateCategoryDto) {
@@ -93,27 +98,29 @@ export class CategoriesService {
   }
 
   async notify(id:string, message:string){
-    const product: Category = await this.findOne(id);
-
+    const category: Category = await this.findOne(id);
     const users:User[] = await this.categoryRepository
                         .createQueryBuilder()
-                        .relation(Category  , 'subscribers')
+                        .relation(Category, 'subscribers')
                         .of(id)
                         .loadMany();
-    
     try{
         for (const user of users){
-            console.log(user)
             if ((Date.now()-user.lastNotified.getTime()) >= 10800000){
-                console.log('Notify user ' + user.name);
-                console.log(message);
+
+                
+                this.mailService.sendEmail(user.email, "Te puede interesar", message)
+
+                this.smsService.sendSms("573022852699", message)
+
+
             }
         }
     }
-    catch{
-      
-    }
-  }
+    catch{}
+
+    
+}
 
   private handleDBErrors(error: any){
     if(error.code === '23505'){
@@ -122,4 +129,7 @@ export class CategoriesService {
 
     throw new InternalServerErrorException('Error creating category')
   }
+
+
+  
 }
