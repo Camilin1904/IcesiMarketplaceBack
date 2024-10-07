@@ -145,7 +145,7 @@ export class ProductsService {
                     .then(msg => console.log(msg)) // logs response data
                     .catch(err => console.log(err)); // logs any error
 
-/*
+
                     const { Vonage } = require('@vonage/server-sdk')
 
                     const vonage = new Vonage({
